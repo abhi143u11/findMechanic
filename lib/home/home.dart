@@ -1,6 +1,7 @@
-import 'package:findmechanice/listing/listing_page.dart';
 import 'package:findmechanice/screen/login.dart';
 import 'package:flutter/material.dart';
+import '../screen/search_page.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../menu.dart';
 
@@ -27,7 +28,7 @@ class HomePage extends StatelessWidget {
       drawer: Drawer(
         child: Menu(),
       ),
-      body: ListingPage(),
+      body: SearchPage(),
     );
   }
 }
