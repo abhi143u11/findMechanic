@@ -1,9 +1,16 @@
 import 'dart:convert';
 
 import 'package:findmechanice/constants.dart';
+import 'package:findmechanice/listing/listing_page.dart';
+import 'package:findmechanice/models/mechanic.dart';
+import 'package:findmechanice/providers/customers.dart';
+import 'package:findmechanice/widgets/dropdown.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -11,57 +18,45 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  double _longitude;
-  double _latitude;
-  String _cityName;
+  String _type = "Car";
 
-  void getLocation() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    _longitude = position.longitude;
-    _latitude = position.latitude;
-    List<Placemark> placemark =
-        await Geolocator().placemarkFromCoordinates(52.2165157, 6.9437819);
-//    print(placemark[0].name);
-  }
-
-  Future<void> getMechanicList() async {
-    try {
-        final response = await http.post("$BASE_URL/cust/mechalist",
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: json.encode({
-              "longitude": _longitude,
-              "latitude": _latitude,
-              "type": "car",
-              "toe": 0
-            }));
-        if (response.statusCode == 200) {
-          print(response.body);
-        } else {
-          print(response.statusCode);
-          print('err');
-        }
-    } catch (e) {
-      print(e);
-    }
+  void selectType(String value) {
+    setState(() {
+      _type = value;
+    });
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getLocation();
-    getMechanicList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: TextField(
-      decoration: InputDecoration(
-          border: InputBorder.none, hintText: 'Enter a search term'),
-    ));
+      height: MediaQuery.of(context).size.height,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          DropDown(selectType, _type),
+          SizedBox(
+            height: 20.0,
+          ),
+          FlatButton.icon(
+            color: Theme.of(context).primaryColor,
+            onPressed: () async {
+              Navigator.of(context).pushNamed(
+                ListingPage.routeName,
+                arguments: _type,
+              );
+            },
+            icon: Icon(Icons.search),
+            label: Text("Search"),
+          ),
+        ],
+      ),
+    );
   }
 }

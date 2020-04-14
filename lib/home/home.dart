@@ -1,29 +1,38 @@
-import 'package:findmechanice/screen/login.dart';
+import 'package:findmechanice/providers/auth.dart';
+import 'package:findmechanice/screen/auth_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../screen/search_page.dart';
-import 'package:geolocator/geolocator.dart';
 
 import '../menu.dart';
 
 class HomePage extends StatelessWidget {
-  final String title;
-  HomePage({this.title});
-
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<Auth>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text(title)),
+        title: Center(child: Text('Find Mechanic')),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.supervised_user_circle),
-            onPressed: (){
-                var routeName = MaterialPageRoute(builder : (context) => Login());
-                Navigator.push(context, routeName);
-            },
-          )
+          auth.isAuth
+              ? FlatButton(
+                  onPressed: () async {
+                    try{
+                      await Provider.of<Auth>(context, listen: false).logout();
+                    }catch(e){
+                      print(e);
+                    }
+                  },
+                  child: Text(
+                    'logout',
+                    style: TextStyle(fontSize: 18),
+                  ))
+              : FlatButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, AuthScreen.routeName);
+                  },
+                  child: Text('login', style: TextStyle(fontSize: 18)))
         ],
-
       ),
       drawer: Drawer(
         child: Menu(),
