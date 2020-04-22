@@ -1,32 +1,36 @@
+import 'package:findmechanice/screen/history.dart';
+import 'package:findmechanice/screen/setting.dart';
 import 'package:flutter/material.dart';
 
 class Menu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      // Important: Remove any padding from the ListView.
       padding: EdgeInsets.zero,
       children: <Widget>[
-        DrawerHeader(
-          child: Text('Drawer Header'),
-          decoration: BoxDecoration(
-            color: Theme.of(context).accentColor,
+        UserAccountsDrawerHeader(
+          accountName: Text("Ashish Rawat"),
+          accountEmail: Text("ashishrawat2911@gmail.com"),
+          currentAccountPicture: CircleAvatar(
+            child: Icon(Icons.account_box),
           ),
         ),
         ListTile(
-          title: Text('Item 1'),
+          title: Text(
+            'History',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           onTap: () {
-            Navigator.pop(context);
-            // Update the state of the app.
-            // ...
+            Navigator.pushNamed(context, History.routeName);
           },
         ),
         ListTile(
-          title: Text('Item 2'),
+          title: Text(
+            'Setting',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           onTap: () {
-            Navigator.pop(context);
-            // Update the state of the app.
-            // ...
+            Navigator.pushNamed(context, Setting.routeName);
           },
         ),
       ],

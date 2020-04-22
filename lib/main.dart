@@ -1,11 +1,15 @@
-import 'package:findmechanice/listing/listing_page.dart';
+import 'package:findmechanice/screen/contact_screen.dart';
+import 'package:findmechanice/screen/listing_page.dart';
 import 'package:findmechanice/providers/auth.dart';
-import 'package:findmechanice/providers/customers.dart';
+import 'package:findmechanice/providers/customer.dart';
 import 'package:findmechanice/screen/auth_screen.dart';
+import 'package:findmechanice/screen/history.dart';
+import 'package:findmechanice/screen/setting.dart';
+import 'package:findmechanice/screen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'home/home.dart';
+import 'screen/home.dart';
 
 void main() => runApp(MyApp());
 
@@ -15,22 +19,39 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider.value(
-            value: Auth(),
+          ChangeNotifierProvider(
+            create: (context) => Auth(),
           ),
-          ChangeNotifierProvider.value(
-            value: Customers(),
+          ChangeNotifierProxyProvider<Auth, Customer>(
+            update: (context, auth, prevCust) => Customer(
+              auth.userId,
+              prevCust == null ? [] : prevCust.mechanicList,
+            ),
           ),
         ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Find Mechanic',
-          theme: ThemeData(primarySwatch: Colors.amber),
-          home: HomePage(),
-          routes: {
-            AuthScreen.routeName: (context) => AuthScreen(),
-            ListingPage.routeName: (context) => ListingPage(),
-          },
+        child: Consumer<Auth>(
+          builder: (context, auth, _) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Customer',
+            theme: ThemeData(primarySwatch: Colors.amber),
+            home: auth.isAuth
+                ? HomePage()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (context, snapshot) =>
+                        snapshot.connectionState == ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
+            routes: {
+              HomePage.routeName: (context) => HomePage(),
+              AuthScreen.routeName: (context) => AuthScreen(),
+              ListingPage.routeName: (context) => ListingPage(),
+              History.routeName: (context) => History(),
+              Setting.routeName: (context) => Setting(),
+              ContactScreen.routeName: (context) => ContactScreen()
+            },
+          ),
         ));
   }
 }

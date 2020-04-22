@@ -1,44 +1,45 @@
 import 'dart:async';
-import 'package:findmechanice/providers/customers.dart';
+import 'package:findmechanice/providers/customer.dart';
+import 'package:findmechanice/screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'feedback_screen.dart';
-
 class ContactScreen extends StatefulWidget {
-  final mechId;
-  final historyId;
-  ContactScreen({this.mechId, this.historyId});
+  static const routeName = '/contact';
+  ContactScreen();
   @override
   _ContactScreenState createState() => _ContactScreenState();
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  bool isContact = false;
+  bool _indicator = false;
   bool isInit = true;
   Timer _timer;
 
   @override
+  void deactivate() {
+    _timer.cancel();
+    super.deactivate();
+  }
+
+  @override
   void didChangeDependencies() async {
-    // TODO: implement didChangeDependencies
     if (isInit) {
-      if (!isContact) {
-        _timer = Timer.periodic(new Duration(seconds: 1), (timer) async {
+      _indicator = Provider.of<Customer>(context, listen: false).indicator;
+      if (!_indicator) {
+        _timer = Timer.periodic(new Duration(seconds: 2), (_) async {
           try {
-            bool response = await Provider.of<Customers>(context, listen: false)
-                .checkMechanic(widget.historyId);
-            print(response);
-            debugPrint(timer.tick.toString());
-            isContact = response;
-//            if(isContact) timer.cancel();
+            await Provider.of<Customer>(context, listen: false).checkMechanic();
+            _indicator =
+                Provider.of<Customer>(context, listen: false).indicator;
+            if (_indicator) setState(() {});
           } catch (e) {
+            print(e.toString());
             throw e;
           }
         });
       } else {
-        setState(() {
-          isContact = true;
-        });
+        setState(() {});
       }
     }
     isInit = false;
@@ -46,19 +47,13 @@ class _ContactScreenState extends State<ContactScreen> {
   }
 
   @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _timer.cancel();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    String mechId = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
         title: Text('Contact mechanic'),
       ),
-      body: !isContact
+      body: !_indicator
           ? Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -68,7 +63,7 @@ class _ContactScreenState extends State<ContactScreen> {
                       margin: EdgeInsets.only(top: 20, left: 20),
                       height: 50.0,
                       child: Text(
-                        'Waiting for Mechanic on the Destination to reach',
+                        'Waiting for Mechanic...',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -76,16 +71,15 @@ class _ContactScreenState extends State<ContactScreen> {
                       ),
                     ),
                   ),
-                  LinearProgressIndicator(),
                   Container(
                     color: Theme.of(context).primaryColor,
                     width: double.infinity,
                     child: FlatButton(
                       onPressed: () async {
                         try {
-                          await Provider.of<Customers>(context, listen: false)
-                              .handleCancel(widget.historyId);
-                          Navigator.of(context).pop();
+                          await Provider.of<Customer>(context, listen: false)
+                              .handleCancel(mechId);
+                          Navigator.of(context).pop(true);
                         } catch (e) {
                           throw e;
                         }
@@ -103,19 +97,20 @@ class _ContactScreenState extends State<ContactScreen> {
                     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                     width: double.infinity,
                     child: Text(
-                      'Mechanic on the way to perform the task!!',
+                      'Mechanic is performing  the task!! Once completed Plese click the done button.',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                          color: Colors.black),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ),
                 RaisedButton(
-                  onPressed: () {
-                    var route = MaterialPageRoute(
-                        builder: (context) => FeedbackScreen());
-                    Navigator.push(context, route);
+                  onPressed: () async {
+                    await Provider.of<Customer>(context, listen: false)
+                        .customerDone(mechId);
+                    Navigator.pushReplacementNamed(context, HomePage.routeName);
                   },
                   child: Text(
                     'Done',

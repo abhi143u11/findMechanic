@@ -1,3 +1,4 @@
+import 'package:findmechanice/constants.dart';
 import 'package:flutter/material.dart';
 
 class DropDown extends StatefulWidget {
@@ -11,16 +12,13 @@ class DropDown extends StatefulWidget {
 
 class _DropDownState extends State<DropDown> {
   List<DropdownMenuItem> getItem() {
-    return <String>['Car', 'Bike', 'Bus', 'Truck', 'Trackter', 'Auto']
+    return <String>['Car', 'Bike', 'Bus', 'Truck', 'Tacter', 'Auto']
         .map<DropdownMenuItem<String>>((String value) {
       return DropdownMenuItem<String>(
         value: value,
         child: Text(
           value,
-          style: TextStyle(
-              color: Theme.of(context).primaryColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold),
+          style: widgetStyle1,
         ),
       );
     }).toList();
@@ -29,7 +27,7 @@ class _DropDownState extends State<DropDown> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.1,
+      height: MediaQuery.of(context).size.height * 0.08,
       color: Colors.grey,
       margin: EdgeInsets.only(top: 20),
       padding: EdgeInsets.all(5.0),
@@ -40,7 +38,7 @@ class _DropDownState extends State<DropDown> {
             value: widget.type,
             icon: Icon(
               Icons.expand_more,
-              color: Theme.of(context).primaryColor,
+              color: Colors.black,
             ),
             iconSize: 50,
             elevation: 16,

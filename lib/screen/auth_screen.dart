@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:findmechanice/home/home.dart';
-import 'package:findmechanice/listing/listing_page.dart';
+import 'package:findmechanice/screen/home.dart';
+import 'package:findmechanice/screen/listing_page.dart';
 import 'package:findmechanice/screen/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,7 +61,7 @@ class _AuthCardState extends State<AuthCard>
   AnimationController _controller;
   Animation<Offset> _slideAnimation;
   Animation<double> _opacityAnimation;
-  String message = '';
+  String _errorMsg = '';
 
   @override
   void initState() {
@@ -116,7 +116,6 @@ class _AuthCardState extends State<AuthCard>
   }
 
   Future<void> _submit() async {
-    print('callde');
     if (!_formKey.currentState.validate()) {
       // Invalid!
       return;
@@ -131,6 +130,11 @@ class _AuthCardState extends State<AuthCard>
         // Log user in
         await Provider.of<Auth>(context, listen: false)
             .login(_authData['email'], _authData['password'], context);
+        _errorMsg = Provider.of<Auth>(context, listen: false).errorMsg;
+        if (_errorMsg != null) {
+          setState(() {});
+          return;
+        }
       } else {
         // Sign user up
         await Provider.of<Auth>(context, listen: false).signup(
@@ -139,6 +143,11 @@ class _AuthCardState extends State<AuthCard>
             _authData['mobileno'],
             _authData['password'],
             context);
+        _errorMsg = Provider.of<Auth>(context, listen: false).errorMsg;
+        if (_errorMsg != null) {
+          setState(() {});
+          return;
+        }
       }
     } on HttpException catch (error) {
       var errorMessage = 'Authentication failed';
@@ -302,7 +311,7 @@ class _AuthCardState extends State<AuthCard>
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               textColor: Theme.of(context).primaryColor,
             ),
-            message.isEmpty ? Container() : Text(message)
+            _errorMsg.isEmpty ? Container() : Text(_errorMsg)
           ],
         ),
       ),
