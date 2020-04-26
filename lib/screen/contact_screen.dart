@@ -1,7 +1,12 @@
 import 'dart:async';
+import 'package:findmechanice/constants.dart';
+import 'package:findmechanice/models/mechanic.dart';
 import 'package:findmechanice/providers/customer.dart';
 import 'package:findmechanice/screen/home.dart';
+import 'package:findmechanice/screen/modalsheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class ContactScreen extends StatefulWidget {
@@ -12,116 +17,172 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  bool _indicator = false;
   bool isInit = true;
   Timer _timer;
+  bool _isLoading = false;
 
   @override
-  void deactivate() {
+  void dispose() {
+    if (_timer == null) return;
     _timer.cancel();
-    super.deactivate();
+    super.dispose();
   }
 
   @override
   void didChangeDependencies() async {
     if (isInit) {
-      _indicator = Provider.of<Customer>(context, listen: false).indicator;
-      if (!_indicator) {
-        _timer = Timer.periodic(new Duration(seconds: 2), (_) async {
-          try {
-            await Provider.of<Customer>(context, listen: false).checkMechanic();
-            _indicator =
-                Provider.of<Customer>(context, listen: false).indicator;
-            if (_indicator) setState(() {});
-          } catch (e) {
-            print(e.toString());
-            throw e;
-          }
-        });
-      } else {
-        setState(() {});
-      }
+      final cust = Provider.of<Customer>(context, listen: false);
+      _timer = Timer.periodic(new Duration(seconds: 2), (_) async {
+        if (cust.indicator) {
+          _timer.cancel();
+          return;
+        }
+        await cust.checkMechanic();
+      });
+      isInit = false;
+      super.didChangeDependencies();
     }
-    isInit = false;
-    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    String mechId = ModalRoute.of(context).settings.arguments;
+    Mechanic mechanic = ModalRoute.of(context).settings.arguments;
+    String mechId = mechanic.id;
+    bool _indicator = Provider.of<Customer>(context).indicator;
+
     return Scaffold(
+      backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
         title: Text('Contact mechanic'),
       ),
       body: !_indicator
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Container(
-                      margin: EdgeInsets.only(top: 20, left: 20),
-                      height: 50.0,
-                      child: Text(
-                        'Waiting for Mechanic...',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+          ? Visibility(
+              visible: !_indicator,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Container(
+                      height: 100,
+                      color: Colors.white,
+                      margin: EdgeInsets.only(top: 20),
+                      child: Center(
+                        child: Text(
+                          'Wait for Mechanic to reach at Your location...',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    SizedBox(
+                      height: 80,
+                    ),
+                    buildContainer(mechanic),
+                  ]),
+            )
+          : Visibility(
+              visible: _indicator,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
                   Container(
-                    color: Theme.of(context).primaryColor,
+                    color: Colors.white,
+                    margin: EdgeInsets.symmetric(vertical: 40),
                     width: double.infinity,
-                    child: FlatButton(
-                      onPressed: () async {
+                    child: Text(
+                        'Mechanic has reached you! \n\n  Task Once completed Plese click the done button.',
+                        textAlign: TextAlign.center,
+                        style: dataStyle1),
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  buildContainer(mechanic)
+                ],
+              ),
+            ),
+      bottomNavigationBar: BottomAppBar(
+        child: _indicator
+            ? RaisedButton(
+                color: Theme.of(context).primaryColor,
+                onPressed: () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  await Provider.of<Customer>(context, listen: false)
+                      .customerDone(mechId);
+                  Provider.of<Customer>(context, listen: false)
+                      .setIndicator(false);
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  Navigator.pushReplacementNamed(context, HomePage.routeName);
+//                    await _showModal(context, mechId);
+                },
+                child: Text(
+                  _isLoading ? 'Plaese wait' : 'Done',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Colors.black),
+                ),
+              )
+            : RaisedButton(
+                color: Theme.of(context).primaryColor,
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        setState(() {
+                          _isLoading = true;
+                        });
                         try {
                           await Provider.of<Customer>(context, listen: false)
                               .handleCancel(mechId);
-                          Navigator.of(context).pop(true);
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          Navigator.of(context).pop();
                         } catch (e) {
                           throw e;
                         }
                       },
-                      child: Text('Cancel'),
-                    ),
-                  )
-                ])
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                    width: double.infinity,
-                    child: Text(
-                      'Mechanic is performing  the task!! Once completed Plese click the done button.',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                RaisedButton(
-                  onPressed: () async {
-                    await Provider.of<Customer>(context, listen: false)
-                        .customerDone(mechId);
-                    Navigator.pushReplacementNamed(context, HomePage.routeName);
-                  },
-                  child: Text(
-                    'Done',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
+                child: Text(_isLoading ? 'Please wait' : 'Cancel'),
+              ),
+      ),
     );
+  }
+
+  Container buildContainer(Mechanic mechanic) {
+    return Container(
+      height: 250,
+      child: Card(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Mechanic Contact Deatils',
+              style: dataStyle1,
+            ),
+            Text(
+              mechanic.name,
+              style: dataStyle2,
+            ),
+            Text(mechanic.mobile.toString(), style: dataStyle2),
+            Text(mechanic.email, style: dataStyle2),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _showModal(BuildContext context, String mechId) async {
+    String routeName = await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) => ModalSheet(mechId),
+    );
+    Navigator.of(context).pushReplacementNamed(routeName);
   }
 }

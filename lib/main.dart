@@ -25,32 +25,34 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProxyProvider<Auth, Customer>(
             update: (context, auth, prevCust) => Customer(
               auth.userId,
-              prevCust == null ? [] : prevCust.mechanicList,
             ),
           ),
         ],
         child: Consumer<Auth>(
-          builder: (context, auth, _) => MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Customer',
-            theme: ThemeData(primarySwatch: Colors.amber),
-            home: auth.isAuth
-                ? HomePage()
-                : FutureBuilder(
-                    future: auth.tryAutoLogin(),
-                    builder: (context, snapshot) =>
-                        snapshot.connectionState == ConnectionState.waiting
-                            ? SplashScreen()
-                            : AuthScreen(),
-                  ),
-            routes: {
-              HomePage.routeName: (context) => HomePage(),
-              AuthScreen.routeName: (context) => AuthScreen(),
-              ListingPage.routeName: (context) => ListingPage(),
-              History.routeName: (context) => History(),
-              Setting.routeName: (context) => Setting(),
-              ContactScreen.routeName: (context) => ContactScreen()
-            },
+          builder: (context, auth, _) => ChangeNotifierProvider(
+            create: (context) => Customer(auth.userId),
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'Customer',
+              theme: ThemeData(primarySwatch: Colors.blue),
+              home: auth.isAuth
+                  ? HomePage()
+                  : FutureBuilder(
+                      future: auth.tryAutoLogin(),
+                      builder: (context, snapshot) =>
+                          snapshot.connectionState == ConnectionState.waiting
+                              ? SplashScreen()
+                              : AuthScreen(),
+                    ),
+              routes: {
+                HomePage.routeName: (context) => HomePage(),
+                AuthScreen.routeName: (context) => AuthScreen(),
+                ListingPage.routeName: (context) => ListingPage(),
+                History.routeName: (context) => History(),
+                Setting.routeName: (context) => Setting(),
+                ContactScreen.routeName: (context) => ContactScreen()
+              },
+            ),
           ),
         ));
   }

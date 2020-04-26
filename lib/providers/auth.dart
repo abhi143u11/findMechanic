@@ -56,10 +56,13 @@ class Auth with ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _userId = data[0]['_id'];
-        print(_userId);
-        print(response.body);
+        _name = data[0]['name'];
+        _email = data[0]['email'];
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString("userId", _userId);
+        final userData = json.encode(
+          {'userId': _userId, 'name': _name, 'email': _email},
+        );
+        prefs.setString('userData', userData);
       } else {
         print(response.statusCode);
         print(response.body);
@@ -91,9 +94,12 @@ class Auth with ChangeNotifier {
         _userId = data['_id'];
         _name = data['name'];
         _email = data['email'];
-        print(response.body);
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString('userId', _userId);
+        final userData = json.encode(
+          {'userId': _userId, 'name': _name, 'email': _email},
+        );
+        prefs.setString('userData', userData);
+        notifyListeners();
       } else {
         print(response.body);
         print(response.statusCode);
@@ -130,15 +136,15 @@ class Auth with ChangeNotifier {
 
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('userId')) {
+    if (!prefs.containsKey('userData')) {
       return false;
     }
-    _userId = prefs.getString('userId');
-    print("pref $_userId");
+    final extractedUserData =
+        json.decode(prefs.getString('userData')) as Map<String, Object>;
+    _userId = extractedUserData['userId'];
+    _name = extractedUserData['name'];
+    _email = extractedUserData['email'];
     notifyListeners();
     return true;
   }
-
-
-
 }

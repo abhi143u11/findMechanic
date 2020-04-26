@@ -7,27 +7,25 @@ import 'package:geolocator/geolocator.dart';
 import '../constants.dart';
 
 class Customer with ChangeNotifier {
-  List<Mechanic> _mechanic = [];
   double _longitude;
   double _latitude;
-  String _address;
   String _userId;
   String _historyId;
   bool _indicator = false;
+  List<Mechanic> _mechanic = [];
 
-  Customer(this._userId, this._mechanic);
+  Customer(this._userId);
+  bool get indicator => _indicator;
 
-  bool get indicator {
-    return _indicator;
+  void setIndicator(bool value){
+    _indicator = value;
+    notifyListeners();
   }
 
-  String get address {
-    return address;
-  }
 
   Future<void> getLocation() async {
     Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     print(position.longitude);
     print(position.latitude);
     _longitude = position.longitude;
@@ -50,10 +48,10 @@ class Customer with ChangeNotifier {
           },
           body: json.encode(
             {
-              "latitude": _latitude != null ? _latitude : 28.610001,
-              "longitude": _longitude != null ? _longitude : 77.230003,
-              "type": type.toLowerCase(),
-              "toe": toe ? 1 : 0
+              'latitude' : _latitude,
+              'longitude':_longitude,
+              'type': type.toLowerCase(),
+              'toe': toe ? 1 : 0
             },
           ));
       if (response.statusCode == 200) {
@@ -82,8 +80,8 @@ class Customer with ChangeNotifier {
           },
           body: json.encode({
             "mechaid": mechId,
-            "latitude": _latitude != null ? _latitude : 28.610001,
-            "longitude": _longitude != null ? _longitude : 77.230003,
+            "latitude": _latitude,
+            "longitude": _longitude,
             "custid": _userId,
             "type": data.type,
             "time": data.time,
@@ -102,7 +100,6 @@ class Customer with ChangeNotifier {
   }
 
   Future<void> checkMechanic() async {
-    print("hid $_historyId");
     try {
       final response = await http.post("$BASE_URL/cust/checkpoint",
           headers: {
@@ -113,15 +110,15 @@ class Customer with ChangeNotifier {
         print(response.body);
         final jsonData = jsonDecode(response.body);
         _indicator = jsonData[0] == 0 ? false : true;
-        print(indicator);
-        notifyListeners();
       } else {
         print(response.statusCode);
       }
     } catch (e) {
       throw e;
     }
+    notifyListeners();
   }
+
 
   Future<void> handleCancel(String mechId) async {
     print("mechId $mechId");
@@ -133,6 +130,28 @@ class Customer with ChangeNotifier {
           body: json.encode({"_id": mechId})); //custId
       if (response.statusCode == 200) {
         print(response.body);
+      } else {
+        print(response.statusCode);
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> handleRating(int rating, String mechId) async {
+    try {
+      final response = await http.post("$BASE_URL/cust/cencel",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            "_id": mechId,
+            "historyid": _historyId,
+            "rating": 5
+          }));
+      if (response.statusCode == 200) {
+        print(response.body);
+        print(response.statusCode);
       } else {
         print(response.statusCode);
       }
@@ -153,6 +172,8 @@ class Customer with ChangeNotifier {
           }));
       if (response.statusCode == 200) {
         print(response.statusCode);
+        _indicator = false;
+        print('cust done called');
       } else {
         print(response.statusCode);
       }

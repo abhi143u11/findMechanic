@@ -1,8 +1,4 @@
-import 'dart:math';
 
-import 'package:findmechanice/screen/home.dart';
-import 'package:findmechanice/screen/listing_page.dart';
-import 'package:findmechanice/screen/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
