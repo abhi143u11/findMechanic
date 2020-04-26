@@ -3,6 +3,7 @@ import 'package:findmechanice/providers/auth.dart';
 import 'package:findmechanice/screen/history.dart';
 import 'package:findmechanice/screen/setting.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:provider/provider.dart';
 
 class Menu extends StatelessWidget {
@@ -19,7 +20,6 @@ class Menu extends StatelessWidget {
           ),
           accountEmail: Text(
             data.email,
-            style: dataStyle2,
           ),
           currentAccountPicture: CircleAvatar(
             child: Icon(Icons.account_box),

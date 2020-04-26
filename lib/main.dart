@@ -34,7 +34,29 @@ class MyApp extends StatelessWidget {
             child: MaterialApp(
               debugShowCheckedModeBanner: false,
               title: 'Customer',
-              theme: ThemeData(primarySwatch: Colors.blue),
+              theme: ThemeData(
+                scaffoldBackgroundColor: Color(0xff11173B),
+                primaryColor: Color(0xff11173B),
+                accentColor: Color(0xffF94B66),
+                cardColor: Color(0xff272A4E),
+                buttonColor: Color(0xffF94B66),
+                fontFamily: 'Georgia',
+                textTheme: TextTheme(
+                  headline: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                  title: TextStyle(
+                    fontSize: 24.0,
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  body1: TextStyle(
+                    fontSize: 18.0,
+                    fontStyle: FontStyle.values[0],
+                  ),
+                ),
+              ),
               home: auth.isAuth
                   ? HomePage()
                   : FutureBuilder(

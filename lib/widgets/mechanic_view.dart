@@ -80,8 +80,8 @@ class _MechanicViewState extends State<MechanicView> {
     return Container(
       height: 250,
       child: Card(
+        color: Theme.of(context).cardColor,
         margin: EdgeInsets.symmetric(vertical: 20),
-        color: Colors.white,
         elevation: 2,
         child: Padding(
           padding: EdgeInsets.all(16),
@@ -96,8 +96,10 @@ class _MechanicViewState extends State<MechanicView> {
                     widget.mechanic.name,
                     style: dataStyle1,
                   ),
-                  Text("${(widget.mechanic.distance).toStringAsFixed(1)} Km",
-                      style: widgetStyle1),
+                  Text(
+                    "${(widget.mechanic.distance).toStringAsFixed(1)} Km",
+                    style: widgetStyle1,
+                  ),
                   Text(
                     "${(widget.mechanic.time).toStringAsFixed(1)} hr",
                     style: widgetStyle1,
@@ -131,6 +133,7 @@ class _MechanicViewState extends State<MechanicView> {
                 ],
               ),
               RaisedButton.icon(
+                  color: Theme.of(context).buttonColor,
                   onPressed: _isLoading
                       ? null
                       : () async {

@@ -18,7 +18,7 @@ class _DropDownState extends State<DropDown> {
         value: value,
         child: Text(
           value,
-          style: widgetStyle1,
+          style: dropdownStyle,
         ),
       );
     }).toList();

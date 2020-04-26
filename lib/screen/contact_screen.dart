@@ -49,9 +49,7 @@ class _ContactScreenState extends State<ContactScreen> {
     Mechanic mechanic = ModalRoute.of(context).settings.arguments;
     String mechId = mechanic.id;
     bool _indicator = Provider.of<Customer>(context).indicator;
-
     return Scaffold(
-      backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
         title: Text('Contact mechanic'),
       ),
@@ -63,17 +61,12 @@ class _ContactScreenState extends State<ContactScreen> {
                   children: <Widget>[
                     Container(
                       height: 100,
-                      color: Colors.white,
                       margin: EdgeInsets.only(top: 20),
                       child: Center(
                         child: Text(
-                          'Wait for Mechanic to reach at Your location...',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                            'Wait for Mechanic to reach at Your location...',
+                            textAlign: TextAlign.center,
+                            style: dataStyle1),
                       ),
                     ),
                     SizedBox(
@@ -88,8 +81,10 @@ class _ContactScreenState extends State<ContactScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   Container(
-                    color: Colors.white,
-                    margin: EdgeInsets.symmetric(vertical: 40),
+                    height: 200,
+                    color: Theme.of(context).cardColor,
+                    margin: EdgeInsets.symmetric(vertical: 20),
+                    padding: EdgeInsets.only(top: 20),
                     width: double.infinity,
                     child: Text(
                         'Mechanic has reached you! \n\n  Task Once completed Plese click the done button.',
@@ -97,7 +92,7 @@ class _ContactScreenState extends State<ContactScreen> {
                         style: dataStyle1),
                   ),
                   SizedBox(
-                    height: 40,
+                    height: 20,
                   ),
                   buildContainer(mechanic)
                 ],
@@ -106,7 +101,7 @@ class _ContactScreenState extends State<ContactScreen> {
       bottomNavigationBar: BottomAppBar(
         child: _indicator
             ? RaisedButton(
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).buttonColor,
                 onPressed: () async {
                   setState(() {
                     _isLoading = true;
@@ -123,14 +118,11 @@ class _ContactScreenState extends State<ContactScreen> {
                 },
                 child: Text(
                   _isLoading ? 'Plaese wait' : 'Done',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      color: Colors.black),
+                  style: dataStyle1,
                 ),
               )
             : RaisedButton(
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).buttonColor,
                 onPressed: _isLoading
                     ? null
                     : () async {
@@ -148,7 +140,10 @@ class _ContactScreenState extends State<ContactScreen> {
                           throw e;
                         }
                       },
-                child: Text(_isLoading ? 'Please wait' : 'Cancel'),
+                child: Text(
+                  _isLoading ? 'Please wait' : 'Cancel',
+                  style: dataStyle1,
+                ),
               ),
       ),
     );
@@ -158,6 +153,7 @@ class _ContactScreenState extends State<ContactScreen> {
     return Container(
       height: 250,
       child: Card(
+        color: Theme.of(context).cardColor,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -165,6 +161,9 @@ class _ContactScreenState extends State<ContactScreen> {
             Text(
               'Mechanic Contact Deatils',
               style: dataStyle1,
+            ),
+            SizedBox(
+              height: 20,
             ),
             Text(
               mechanic.name,

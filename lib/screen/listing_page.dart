@@ -15,9 +15,6 @@ class _ListingPageState extends State<ListingPage> {
   List<Mechanic> mechanicList;
   bool isLoading = true;
 
-
-
-
   @override
   Widget build(BuildContext context) {
     List searchData = ModalRoute.of(context).settings.arguments as List;
@@ -26,7 +23,6 @@ class _ListingPageState extends State<ListingPage> {
         appBar: AppBar(
           title: Text('Select Mechanic'),
         ),
-        backgroundColor: Color(0xfff0f0f0),
         body: RefreshIndicator(
           onRefresh: () => cust.getMechanic(searchData[0], searchData[1]),
           child: FutureBuilder(
@@ -47,9 +43,9 @@ class _ListingPageState extends State<ListingPage> {
   }
 
   Widget _buildList(BuildContext context, List<Mechanic> data) {
-     if(data.length == 0 || data == null) {
-       data = Provider.of<Customer>(context).mechanicList;
-     }
+    if (data.length == 0 || data == null) {
+      data = Provider.of<Customer>(context).mechanicList;
+    }
     return ListView.builder(
       itemBuilder: (BuildContext context, int i) {
         return MechanicView(
@@ -68,5 +64,4 @@ class _ListingPageState extends State<ListingPage> {
           style: TextStyle(color: Colors.black, fontSize: 16)),
     );
   }
-
 }

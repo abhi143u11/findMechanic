@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth.dart';
@@ -17,13 +17,14 @@ class AuthScreen extends StatelessWidget {
     // final transformConfig = Matrix4.rotationZ(-8 * pi / 180);
     // transformConfig.translate(-10.0);
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(AuthMode.Login == authMode ? 'Login' : 'Signup'),
       ),
       // resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.only(top: 80, left: 10, right: 10),
+          padding: EdgeInsets.only(top: 80),
           height: deviceSize.height,
           width: deviceSize.width,
           child: AuthCard(),
@@ -305,7 +306,7 @@ class _AuthCardState extends State<AuthCard>
               onPressed: _switchAuthMode,
               padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              textColor: Theme.of(context).primaryColor,
+              textColor: Theme.of(context).accentColor,
             ),
             _errorMsg.isEmpty ? Container() : Text(_errorMsg)
           ],
